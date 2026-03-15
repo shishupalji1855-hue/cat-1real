@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>10haath Scanner - Category 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #1b1b1b;
+        --muted: #5b5b5b;
+        --paper: #f7f3ea;
+        --accent: #0f7a6d;
+        --accent-2: #d9822b;
+        --danger: #c23b22;
+        --card: #ffffff;
+        --border: #e2d8c5;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: "Space Grotesk", system-ui, sans-serif; color: var(--ink); background: #12233f; }
+      .wrap { max-width: 580px; margin: 0 auto; padding: 28px 18px 80px; }
+      header { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; text-align: center; }
+      h1 { margin: 0; font-size: 28px; color: #fff; }
+      .subtitle { color: #d8d8d8; font-size: 14px; }
+      .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); margin-bottom: 16px; }
+      
+      .tabs { display: grid; grid-template-columns: 1fr 1fr; background: #f1f1f1; border-radius: 12px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border); }
+      .tab-btn { border: none; background: transparent; padding: 14px; font-weight: 700; cursor: pointer; color: #4b4b4b; font-size: 16px; transition: 0.3s; }
+      .tab-btn.active { background: #1f3558; color: #fff; }
+      
+      .row { display: grid; gap: 15px; margin-top: 10px; }
+      label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+      input, textarea { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); font-family: inherit; font-size: 15px; background: #fafafa; }
+      input:focus, textarea:focus { border-color: var(--accent); outline: none; background: #fff; }
+      
+      .btn { border: none; padding: 15px 20px; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; width: 100%; font-size: 16px; transition: 0.2s; box-shadow: 0 4px 10px rgba(15, 122, 109, 0.2); }
+      .btn:active { transform: scale(0.98); }
+      .btn.secondary { background: var(--accent-2); box-shadow: 0 4px 10px rgba(217, 130, 43, 0.2); }
+      .btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+      
+      .hidden { display: none; }
+      .status-box { padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; font-weight: 500; text-align: center; }
+      .status-info { background: #eef7ff; color: #0066cc; border: 1px solid #b3d9ff; }
+      .status-error { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+      
+      .legal-note { margin-top: 15px; padding: 12px; background: #fff4f4; border-radius: 10px; border: 1px solid #ffcccc; font-size: 12px; color: #d63031; line-height: 1.5; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1 id="identityHeading">Loading...</h1>
+        <div class="subtitle" id="identitySub">10haath Smart Security</div>
+      </header>
+
+      <div id="statusText" class="status-box status-info">Fetching secure record...</div>
+
+      <section class="card">
+        <div class="tabs">
+          <button class="tab-btn active" id="saviorTabBtn">Savior</button>
+          <button class="tab-btn" id="ownerTabBtn">Owner</button>
+        </div>
+
+        <!-- SAVIOR TAB CONTENT -->
+        <div id="saviorContent">
+          <div id="saviorStep1">
+            <h2 style="font-size: 18px; margin-top: 0;">Step 1: WhatsApp Verify</h2>
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Gadi ke maalik ko alert bhejne ke liye WhatsApp verify karein.</p>
+            <button class="btn" id="verifyBtn">VERIFY VIA WHATSAPP</button>
+          </div>
+
+          <div id="saviorStep2" class="hidden">
+            <h2 style="font-size: 18px; margin-top: 0;">Step 2: Submit Alert</h2>
+            <div class="row">
+              <div>
+                <label>Vehicle Number</label>
+                <input id="vNo" readonly style="background: #eee; font-weight: bold; color: #333;" />
+              </div>
+              <div>
+                <label>Your WhatsApp Number</label>
+                <input id="scannerNo" type="number" placeholder="WhatsApp number jisse verify kiya" />
+              </div>
+              <div>
+                <label>Problem / Situation</label>
+                <textarea id="dikkat" placeholder="Gadi lock hai / Shisha khula hai / Emergency..."></textarea>
+              </div>
+              <button class="btn secondary" id="logSubmit">FINAL SUBMIT</button>
+            </div>
+            <div class="legal-note">
+              ⚠️ <b>Sachet (Alert):</b> Aapka number record kiya ja chuka hai. Galat jankari dena kanoonan apradh hai.
+            </div>
+          </div>
+        </div>
+
+        <!-- OWNER TAB CONTENT -->
+        <div id="ownerContent" class="hidden">
+          <div id="ownerLock">
+            <h2 style="font-size: 18px; margin-top: 0;">Owner Management</h2>
+            <div class="row">
+              <div>
+                <label>Security PIN</label>
+                <input id="pinInput" type="password" placeholder="Enter owner PIN" />
+              </div>
+              <button class="btn" id="pinCheck">Unlock Management</button>
+            </div>
+          </div>
+
+          <div id="ownerPanel" class="hidden">
+            <h2 style="font-size: 18px; margin-top: 0;">Update QR Details</h2>
+            <div class="row">
+              <div>
+                <label>Owner Name</label>
+                <input type="text" id="ownerName" placeholder="Owner Name">
+              </div>
+              <div>
+                <label>WhatsApp Number</label>
+                <input type="number" id="ownerWA" placeholder="WhatsApp Number">
+              </div>
+              <div>
+                <label>Email 1 (Primary)</label>
+                <input type="email" id="email1" placeholder="Email 1">
+              </div>
+              <div>
+                <label>Email 2 (Optional)</label>
+                <input type="email" id="email2" placeholder="Email 2">
+              </div>
+              <button class="btn" id="updateBtn">UPDATE INFO</button>
+            </div>
+            <div style="margin-top: 15px; text-align: center;">
+              <button class="btn secondary" style="background: #12233f;" onclick="window.open('https://maps.google.com')">Open Google Maps</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // --- CONFIG ---
+      // Replace with your actual deployed Google Apps Script URL
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjeCKNVP1u4KN_1gK8yv5lCZWlz1UdRMvu9rkb_SgxQQvhOGmn9Xcf4YiwIUs5dwk32Q/exec";
+
+      const params = new URLSearchParams(window.location.search);
+      const qName = params.get("n") || "";
+      const qWa = params.get("w") || "";
+      const qSecret = params.get("s") || "";
+      const qId = params.get("id") || "";
+
+      const identityHeading = document.getElementById("identityHeading");
+      const statusText = document.getElementById("statusText");
+      const vNo = document.getElementById("vNo");
+      
+      let record = null;
+
+      // Decode Base64 Secret from Dashboard
+      function decodeSecret(encoded) {
+        if (!encoded) return null;
+        try {
+          let b64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
+          const pad = b64.length % 4;
+          if (pad) b64 += "=".repeat(4 - pad);
+          const json = decodeURIComponent(escape(atob(b64)));
+          return JSON.parse(json);
+        } catch (e) { return null; }
+      }
+
+      function init() {
+        if (qName || qSecret) {
+          const sec = decodeSecret(qSecret) || {};
+          record = {
+            name: qName || "10haath",
+            emergency: sec.e || "",
+            email1: sec.e1 || "",
+            email2: sec.e2 || "",
+            pin: sec.p || "",
+            wa: qWa || "",
+            id: qId || sec.c || ""
+          };
+          identityHeading.textContent = record.name;
+          vNo.value = record.name;
+          statusText.textContent = "Secure record loaded.";
+        } else {
+          statusText.textContent = "Invalid QR Parameters.";
+          statusText.className = "status-box status-error";
+        }
+      }
+
+      // Tab Switching Logic
+      const saviorTabBtn = document.getElementById("saviorTabBtn");
+      const ownerTabBtn = document.getElementById("ownerTabBtn");
+      const saviorContent = document.getElementById("saviorContent");
+      const ownerContent = document.getElementById("ownerContent");
+
+      saviorTabBtn.onclick = () => {
+        saviorTabBtn.classList.add("active");
+        ownerTabBtn.classList.remove("active");
+        saviorContent.classList.remove("hidden");
+        ownerContent.classList.add("hidden");
+      };
+
+      ownerTabBtn.onclick = () => {
+        ownerTabBtn.classList.add("active");
+        saviorTabBtn.classList.remove("active");
+        ownerContent.classList.remove("hidden");
+        saviorContent.classList.add("hidden");
+      };
+
+      // Savior Workflow
+      const verifyBtn = document.getElementById("verifyBtn");
+      const saviorStep1 = document.getElementById("saviorStep1");
+      const saviorStep2 = document.getElementById("saviorStep2");
+      const logSubmit = document.getElementById("logSubmit");
+
+      verifyBtn.onclick = () => {
+        const msg = encodeURIComponent(`10haath Alert: I am verifying recovery for ${record.name}. Please check.`);
+        window.open(`https://wa.me/${record.wa}?text=${msg}`, "_blank");
+        saviorStep1.classList.add("hidden");
+        saviorStep2.classList.remove("hidden");
+        statusText.textContent = "WhatsApp Verified. Please submit details.";
+      };
+
+      logSubmit.onclick = async () => {
+        const scannerNo = document.getElementById("scannerNo").value;
+        const dikkat = document.getElementById("dikkat").value;
+
+        if (scannerNo.length < 10) { alert("Sahi number bharein!"); return; }
+
+        logSubmit.innerText = "Processing...";
+        logSubmit.disabled = true;
+
+        const payload = {
+          action: "saveSaviorAlert",
+          gadi: record.name,
+          phone: scannerNo,
+          reason: dikkat
+        };
+
+        try {
+          const res = await fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+          const data = await res.json();
+          if (data.status === "SUCCESS") {
+            const recipients = [data.email1, data.email2].filter(Boolean).join(",");
+            const subject = encodeURIComponent(`🚨 Savior Alert - ${record.name}`);
+            const body = encodeURIComponent(`Vehicle: ${record.name}\nScanner: ${scannerNo}\nProblem: ${dikkat}`);
+            window.location.href = `mailto:${recipients}?subject=${subject}&body=${body}`;
+            statusText.textContent = "Success! Data saved and Email opened.";
+          } else {
+            alert("Error: " + data.message);
+          }
+        } catch (e) {
+          alert("Script Error. Make sure APPS_SCRIPT_URL is set.");
+        }
+        logSubmit.innerText = "FINAL SUBMIT";
+        logSubmit.disabled = false;
+      };
+
+      // Owner Workflow
+      const pinCheck = document.getElementById("pinCheck");
+      const ownerLock = document.getElementById("ownerLock");
+      const ownerPanel = document.getElementById("ownerPanel");
+      const updateBtn = document.getElementById("updateBtn");
+
+      pinCheck.onclick = () => {
+        const pinInput = document.getElementById("pinInput").value;
+        if (pinInput === String(record.pin)) {
+          ownerLock.classList.add("hidden");
+          ownerPanel.classList.remove("hidden");
+          document.getElementById("ownerName").value = record.name;
+          document.getElementById("ownerWA").value = record.wa;
+          document.getElementById("email1").value = record.email1;
+          document.getElementById("email2").value = record.email2;
+          statusText.textContent = "Owner Management Unlocked.";
+        } else {
+          alert("Incorrect PIN!");
+        }
+      };
+
+      updateBtn.onclick = async () => {
+        updateBtn.innerText = "Updating...";
+        updateBtn.disabled = true;
+
+        const payload = {
+          action: "updateOwnerDetails",
+          name: document.getElementById("ownerName").value,
+          gadi: record.name,
+          phone: document.getElementById("ownerWA").value,
+          email1: document.getElementById("email1").value,
+          email2: document.getElementById("email2").value,
+          emergency: document.getElementById("ownerWA").value
+        };
+
+        try {
+          const res = await fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+          const data = await res.json();
+          if (data.status === "SUCCESS") {
+            statusText.textContent = "Registration details updated successfully!";
+          } else {
+            alert("Error: " + data.message);
+          }
+        } catch (e) {
+          alert("Script Error.");
+        }
+        updateBtn.innerText = "UPDATE INFO";
+        updateBtn.disabled = false;
+      };
+
+      init();
+    </script>
+  </body>
+</html>
