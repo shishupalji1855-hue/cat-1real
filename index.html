@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>10haath Category 1 Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #1b1b1b;
+        --muted: #5b5b5b;
+        --paper: #f7f3ea;
+        --accent: #0f7a6d;
+        --accent-2: #d9822b;
+        --card: #ffffff;
+        --border: #e2d8c5;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Space Grotesk", system-ui, sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at top, #fff7e3, var(--paper));
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: var(--shadow);
+        width: 100%;
+        max-width: 450px;
+      }
+      h1 { margin: 0 0 10px; font-size: 24px; text-align: center; }
+      p.subtitle { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 25px; }
+      
+      .form-group { margin-bottom: 15px; }
+      label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+      input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); font-family: inherit; font-size: 15px; }
+      input:focus { border-color: var(--accent); outline: none; }
+      
+      .btn { border: none; padding: 15px; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; width: 100%; font-size: 16px; transition: 0.2s; margin-top: 10px; }
+      .btn:hover { background: #0a635a; }
+      .btn:disabled { background: #ccc; cursor: not-allowed; }
+      
+      #qrResult { display: none; margin-top: 25px; text-align: center; border-top: 1px dashed var(--border); pt: 20px; }
+      #qrcode { display: flex; justify-content: center; margin: 20px 0; }
+      .link-box { background: #f9f9f9; padding: 10px; border-radius: 8px; font-size: 12px; word-break: break-all; color: var(--muted); border: 1px solid #eee; margin-top: 10px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Cat 1 QR Builder</h1>
+      <p class="subtitle">Generate smart security QR codes for Category 1</p>
+      
+      <form id="builderForm">
+        <div class="form-group">
+          <label>Owner Name / Vehicle No.</label>
+          <input type="text" id="name" placeholder="e.g. Rahul Sharma / DL10AB1234" required>
+        </div>
+        <div class="form-group">
+          <label>WhatsApp Number</label>
+          <input type="number" id="wa" placeholder="91XXXXXXXXXX" required>
+        </div>
+        <div class="form-group">
+          <label>Alert Email 1</label>
+          <input type="email" id="email1" placeholder="primary@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Alert Email 2 (Optional)</label>
+          <input type="email" id="email2" placeholder="secondary@email.com">
+        </div>
+        <div class="form-group">
+          <label>Security PIN (for Owner Tab)</label>
+          <input type="password" id="pin" placeholder="Set 4-digit PIN" required maxlength="4">
+        </div>
+        
+        <button type="submit" class="btn" id="submitBtn">Generate QR Code</button>
+      </form>
+
+      <div id="qrResult">
+        <div id="qrcode"></div>
+        <p style="font-weight: 600; color: #2b9348;">✅ QR Code Generated!</p>
+        <div class="link-box" id="urlDisplay"></div>
+        <p style="font-size: 11px; color: #999; margin-top: 10px;">Right-click QR to save/download</p>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+      // --- CONFIG ---
+      const SCANNER_FILENAME = "category1_scanner.html"; // Change to "index.html" if you rename it
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjeCKNVP1u4KN_1gK8yv5lCZWlz1UdRMvu9rkb_SgxQQvhOGmn9Xcf4YiwIUs5dwk32Q/exec";
+
+      function base64UrlEncode(obj) {
+        const json = JSON.stringify(obj);
+        return btoa(unescape(encodeURIComponent(json)))
+          .replace(/\+/g, "-")
+          .replace(/\//g, "_")
+          .replace(/=+$/g, "");
+      }
+
+      document.getElementById('builderForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.innerText = "Processing...";
+        btn.disabled = true;
+
+        const data = {
+          name: document.getElementById('name').value.trim(),
+          wa: document.getElementById('wa').value.trim(),
+          email1: document.getElementById('email1').value.trim(),
+          email2: document.getElementById('email2').value.trim(),
+          pin: document.getElementById('pin').value.trim()
+        };
+
+        // 1. Sync with Apps Script (Registration in GID 0)
+        try {
+          const res = await fetch(APPS_SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({
+              action: "updateOwnerDetails",
+              name: data.name,
+              gadi: data.name,
+              phone: data.wa,
+              email1: data.email1,
+              email2: data.email2,
+              emergency: data.wa
+            })
+          });
+          const result = await res.json();
+          console.log("Sheet Sync:", result.message);
+        } catch (err) {
+          console.error("Sheet Sync Error:", err);
+        }
+
+        // 2. Generate Secret and URL
+        const secret = base64UrlEncode({
+          e: data.wa,
+          p: data.pin,
+          e1: data.email1,
+          e2: data.email2,
+          c: data.name // Cust ID
+        });
+
+        const currentPath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        const scanUrl = `${currentPath}${SCANNER_FILENAME}?n=${encodeURIComponent(data.name)}&w=${encodeURIComponent(data.wa)}&s=${secret}`;
+
+        // 3. Display QR
+        document.getElementById('qrcode').innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), {
+          text: scanUrl,
+          width: 180,
+          height: 180,
+          colorDark : "#12233f",
+          colorLight : "#ffffff",
+          correctLevel : QRCode.CorrectLevel.H
+        });
+
+        document.getElementById('urlDisplay').innerText = scanUrl;
+        document.getElementById('qrResult').style.display = "block";
+        btn.innerText = "QR Generated Successfully!";
+        btn.style.background = "#2b9348";
+        
+        document.getElementById('qrResult').scrollIntoView({ behavior: 'smooth' });
+      };
+    </script>
+  </body>
+</html>
