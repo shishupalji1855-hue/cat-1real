@@ -66,12 +66,20 @@
       
       <form id="builderForm">
         <div class="form-group">
-          <label>Owner Name / Vehicle No.</label>
-          <input type="text" id="name" placeholder="e.g. Rahul Sharma / DL10AB1234" required>
+          <label>Vehicle / Cust ID (Unique)</label>
+          <input type="text" id="custID" placeholder="e.g. DL10AB1234" required>
         </div>
         <div class="form-group">
-          <label>WhatsApp Number</label>
+          <label>Owner Name</label>
+          <input type="text" id="name" placeholder="e.g. Rahul Sharma" required>
+        </div>
+        <div class="form-group">
+          <label>WhatsApp Number (WACompany)</label>
           <input type="number" id="wa" placeholder="91XXXXXXXXXX" required>
+        </div>
+        <div class="form-group">
+          <label>Emergency Number (Emergency1)</label>
+          <input type="number" id="emergency" placeholder="91XXXXXXXXXX" required>
         </div>
         <div class="form-group">
           <label>Alert Email 1</label>
@@ -101,7 +109,7 @@
     <script>
       // --- CONFIG ---
       const SCANNER_FILENAME = "category1_scanner.html"; // Change to "index.html" if you rename it
-      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjeCKNVP1u4KN_1gK8yv5lCZWlz1UdRMvu9rkb_SgxQQvhOGmn9Xcf4YiwIUs5dwk32Q/exec";
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzD-m74ZjmHR58jClHvmb-x3g2gulF_efPQ8rB4RWCh5m9jYDOsQvuv5vvJ72WwcOAwlw/exec";
 
       function base64UrlEncode(obj) {
         const json = JSON.stringify(obj);
@@ -118,25 +126,28 @@
         btn.disabled = true;
 
         const data = {
+          custID: document.getElementById('custID').value.trim(),
           name: document.getElementById('name').value.trim(),
           wa: document.getElementById('wa').value.trim(),
+          emergency: document.getElementById('emergency').value.trim(),
           email1: document.getElementById('email1').value.trim(),
           email2: document.getElementById('email2').value.trim(),
           pin: document.getElementById('pin').value.trim()
         };
 
-        // 1. Sync with Apps Script (Registration in GID 0)
+        // 1. Sync with Apps Script (Registration in GID 0 - P00_Human)
         try {
           const res = await fetch(APPS_SCRIPT_URL, {
             method: "POST",
             body: JSON.stringify({
               action: "updateOwnerDetails",
+              gadi: data.custID,
               name: data.name,
-              gadi: data.name,
               phone: data.wa,
+              emergency: data.emergency,
               email1: data.email1,
               email2: data.email2,
-              emergency: data.wa
+              pin: data.pin
             })
           });
           const result = await res.json();
@@ -147,15 +158,17 @@
 
         // 2. Generate Secret and URL
         const secret = base64UrlEncode({
-          e: data.wa,
+          e: data.emergency,
           p: data.pin,
           e1: data.email1,
           e2: data.email2,
-          c: data.name // Cust ID
+          c: data.custID,
+          wa: data.wa,
+          n: data.name
         });
 
         const currentPath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-        const scanUrl = `${currentPath}${SCANNER_FILENAME}?n=${encodeURIComponent(data.name)}&w=${encodeURIComponent(data.wa)}&s=${secret}`;
+        const scanUrl = `${currentPath}${SCANNER_FILENAME}?v=${encodeURIComponent(data.custID)}&s=${secret}`;
 
         // 3. Display QR
         document.getElementById('qrcode').innerHTML = "";

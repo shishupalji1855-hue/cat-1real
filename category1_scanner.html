@@ -112,28 +112,39 @@
           </div>
 
           <div id="ownerPanel" class="hidden">
-            <h2 style="font-size: 18px; margin-top: 0;">Update QR Details</h2>
+            <h2 style="font-size: 18px; margin-top: 0;">Location Management</h2>
             <div class="row">
-              <div>
-                <label>Owner Name</label>
-                <input type="text" id="ownerName" placeholder="Owner Name">
+              <button class="btn" style="background: #12233f;" id="openMapsBtn">OPEN GOOGLE MAPS (SHARE LIVE)</button>
+              
+              <div style="margin-top: 15px;">
+                <label>Paste Location Link Here</label>
+                <input type="text" id="locationLink" placeholder="https://maps.app.goo.gl/..." />
               </div>
-              <div>
-                <label>WhatsApp Number</label>
-                <input type="number" id="ownerWA" placeholder="WhatsApp Number">
-              </div>
-              <div>
-                <label>Email 1 (Primary)</label>
-                <input type="email" id="email1" placeholder="Email 1">
-              </div>
-              <div>
-                <label>Email 2 (Optional)</label>
-                <input type="email" id="email2" placeholder="Email 2">
-              </div>
-              <button class="btn" id="updateBtn">UPDATE INFO</button>
+              
+              <button class="btn secondary" id="saveLocationBtn">SAVE LOCATION & ALERT EMERGENCY</button>
             </div>
-            <div style="margin-top: 15px; text-align: center;">
-              <button class="btn secondary" style="background: #12233f;" onclick="window.open('https://maps.google.com')">Open Google Maps</button>
+
+            <div id="ownerForm" style="margin-top: 30px; border-top: 1px dashed #ccc; pt: 20px;">
+              <h3 style="font-size: 16px;">Update QR Details</h3>
+              <div class="row">
+                <div>
+                  <label>Owner Name</label>
+                  <input type="text" id="ownerName" placeholder="Owner Name">
+                </div>
+                <div>
+                  <label>WhatsApp Number</label>
+                  <input type="number" id="ownerWA" placeholder="WhatsApp Number">
+                </div>
+                <div>
+                  <label>Email 1 (Primary)</label>
+                  <input type="email" id="email1" placeholder="Email 1">
+                </div>
+                <div>
+                  <label>Email 2 (Optional)</label>
+                  <input type="email" id="email2" placeholder="Email 2">
+                </div>
+                <button class="btn" id="updateBtn">UPDATE INFO</button>
+              </div>
             </div>
           </div>
         </div>
@@ -143,13 +154,11 @@
     <script>
       // --- CONFIG ---
       // Replace with your actual deployed Google Apps Script URL
-      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjeCKNVP1u4KN_1gK8yv5lCZWlz1UdRMvu9rkb_SgxQQvhOGmn9Xcf4YiwIUs5dwk32Q/exec";
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzD-m74ZjmHR58jClHvmb-x3g2gulF_efPQ8rB4RWCh5m9jYDOsQvuv5vvJ72WwcOAwlw/exec";
 
       const params = new URLSearchParams(window.location.search);
-      const qName = params.get("n") || "";
-      const qWa = params.get("w") || "";
+      const qV = params.get("v") || "";
       const qSecret = params.get("s") || "";
-      const qId = params.get("id") || "";
 
       const identityHeading = document.getElementById("identityHeading");
       const statusText = document.getElementById("statusText");
@@ -170,19 +179,19 @@
       }
 
       function init() {
-        if (qName || qSecret) {
+        if (qV || qSecret) {
           const sec = decodeSecret(qSecret) || {};
           record = {
-            name: qName || "10haath",
+            id: qV || sec.c || "",
+            name: sec.n || "10haath",
             emergency: sec.e || "",
             email1: sec.e1 || "",
             email2: sec.e2 || "",
             pin: sec.p || "",
-            wa: qWa || "",
-            id: qId || sec.c || ""
+            wa: sec.wa || ""
           };
           identityHeading.textContent = record.name;
-          vNo.value = record.name;
+          vNo.value = record.id;
           statusText.textContent = "Secure record loaded.";
         } else {
           statusText.textContent = "Invalid QR Parameters.";
@@ -217,11 +226,15 @@
       const logSubmit = document.getElementById("logSubmit");
 
       verifyBtn.onclick = () => {
-        const msg = encodeURIComponent(`10haath Alert: I am verifying recovery for ${record.name}. Please check.`);
+        const msg = encodeURIComponent(`Verify Alert for ${record.name}`);
         window.open(`https://wa.me/${record.wa}?text=${msg}`, "_blank");
-        saviorStep1.classList.add("hidden");
-        saviorStep2.classList.remove("hidden");
-        statusText.textContent = "WhatsApp Verified. Please submit details.";
+        
+        // Move to step 2 after a small delay
+        setTimeout(() => {
+          saviorStep1.classList.add("hidden");
+          saviorStep2.classList.remove("hidden");
+          statusText.textContent = "WhatsApp Verified. Please submit details.";
+        }, 1500);
       };
 
       logSubmit.onclick = async () => {
@@ -235,7 +248,7 @@
 
         const payload = {
           action: "saveSaviorAlert",
-          gadi: record.name,
+          gadi: record.id,
           phone: scannerNo,
           reason: dikkat
         };
@@ -245,24 +258,33 @@
           const data = await res.json();
           if (data.status === "SUCCESS") {
             const recipients = [data.email1, data.email2].filter(Boolean).join(",");
-            const subject = encodeURIComponent(`🚨 Savior Alert - ${record.name}`);
-            const body = encodeURIComponent(`Vehicle: ${record.name}\nScanner: ${scannerNo}\nProblem: ${dikkat}`);
+            const subject = encodeURIComponent(`🚨 Gadi Alert: ${record.id}`);
+            const body = encodeURIComponent(
+              `Namaste, Aapka Close One (${record.name}) ke saath ye dikkat hai: ${dikkat}. ` + 
+              `Main uske paas khada hoon. Aap mujhe is number par contact kar sakte hain: ${scannerNo}. ` +
+              `- Sent via Smart QR System !!! It's Urgent !!!`
+            );
             window.location.href = `mailto:${recipients}?subject=${subject}&body=${body}`;
-            statusText.textContent = "Success! Data saved and Email opened.";
+            statusText.textContent = "Success! Email app opened.";
+            logSubmit.innerText = "Email App Opened!";
           } else {
             alert("Error: " + data.message);
+            logSubmit.innerText = "FINAL SUBMIT";
+            logSubmit.disabled = false;
           }
         } catch (e) {
-          alert("Script Error. Make sure APPS_SCRIPT_URL is set.");
+          alert("Script Error.");
+          logSubmit.innerText = "FINAL SUBMIT";
+          logSubmit.disabled = false;
         }
-        logSubmit.innerText = "FINAL SUBMIT";
-        logSubmit.disabled = false;
       };
 
       // Owner Workflow
       const pinCheck = document.getElementById("pinCheck");
       const ownerLock = document.getElementById("ownerLock");
       const ownerPanel = document.getElementById("ownerPanel");
+      const openMapsBtn = document.getElementById("openMapsBtn");
+      const saveLocationBtn = document.getElementById("saveLocationBtn");
       const updateBtn = document.getElementById("updateBtn");
 
       pinCheck.onclick = () => {
@@ -280,6 +302,48 @@
         }
       };
 
+      openMapsBtn.onclick = () => {
+        window.open("https://maps.google.com", "_blank");
+      };
+
+      saveLocationBtn.onclick = async () => {
+        const link = document.getElementById("locationLink").value.trim();
+        if (!link.startsWith("http")) { alert("Please paste a valid Google Maps link!"); return; }
+
+        saveLocationBtn.innerText = "Saving...";
+        saveLocationBtn.disabled = true;
+
+        const payload = {
+          action: "saveLiveLocation",
+          gadi: record.id,
+          location: link
+        };
+
+        try {
+          const res = await fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+          const data = await res.json();
+          if (data.status === "SUCCESS") {
+            statusText.textContent = "Location saved! Redirecting to Emergency WhatsApp...";
+            
+            // Redirect to Emergency1 WhatsApp with prefilled message
+            const msg = encodeURIComponent(`🚨 कृपया मदद करें! मैं खतरे में हूँ। मुझे कॉल करें या मेरी जानकारी पुलिस को भेजें। 🙏\nलिंक: ${link}\n🚨 Please help me, I am in danger. Call me or send my details to the police.`);
+            setTimeout(() => {
+              window.open(`https://wa.me/${record.emergency}?text=${msg}`, "_blank");
+              saveLocationBtn.innerText = "SAVE LOCATION & ALERT EMERGENCY";
+              saveLocationBtn.disabled = false;
+            }, 1000);
+          } else {
+            alert("Error: " + data.message);
+            saveLocationBtn.innerText = "SAVE LOCATION & ALERT EMERGENCY";
+            saveLocationBtn.disabled = false;
+          }
+        } catch (e) {
+          alert("Script Error.");
+          saveLocationBtn.innerText = "SAVE LOCATION & ALERT EMERGENCY";
+          saveLocationBtn.disabled = false;
+        }
+      };
+
       updateBtn.onclick = async () => {
         updateBtn.innerText = "Updating...";
         updateBtn.disabled = true;
@@ -287,11 +351,12 @@
         const payload = {
           action: "updateOwnerDetails",
           name: document.getElementById("ownerName").value,
-          gadi: record.name,
+          gadi: record.id,
           phone: document.getElementById("ownerWA").value,
           email1: document.getElementById("email1").value,
           email2: document.getElementById("email2").value,
-          emergency: document.getElementById("ownerWA").value
+          pin: record.pin,
+          emergency: record.emergency
         };
 
         try {
