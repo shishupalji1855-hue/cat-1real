@@ -109,7 +109,7 @@
     <script>
       // --- CONFIG ---
       const SCANNER_FILENAME = "category1_scanner.html"; // Change to "index.html" if you rename it
-      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzD-m74ZjmHR58jClHvmb-x3g2gulF_efPQ8rB4RWCh5m9jYDOsQvuv5vvJ72WwcOAwlw/exec";
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLvjYqwhzeWWzhID_f7q-0sKHmZnYPeXY5C7_Pp0e5Zpjr1mQDjVxkgTaj0FRh5lbYAg/exec";
 
       function base64UrlEncode(obj) {
         const json = JSON.stringify(obj);
@@ -141,13 +141,13 @@
             method: "POST",
             body: JSON.stringify({
               action: "updateOwnerDetails",
-              gadi: data.custID,
-              name: data.name,
-              phone: data.wa,
-              emergency: data.emergency,
-              email1: data.email1,
-              email2: data.email2,
-              pin: data.pin
+              gadi: data.custID,    // B: Cust_ID(No.)
+              name: data.name,      // C: Person_Name
+              emergency: data.emergency, // D: Emergency1
+              email1: data.email1,  // E: Email1
+              email2: data.email2,  // F: Email2
+              phone: data.wa,       // G: WACompany
+              pin: data.pin         // H: Owner_PIN
             })
           });
           const result = await res.json();

@@ -122,30 +122,6 @@
               </div>
               
               <button class="btn secondary" id="saveLocationBtn">SAVE LOCATION & ALERT EMERGENCY</button>
-            </div>
-
-            <div id="ownerForm" style="margin-top: 30px; border-top: 1px dashed #ccc; pt: 20px;">
-              <h3 style="font-size: 16px;">Update QR Details</h3>
-              <div class="row">
-                <div>
-                  <label>Owner Name</label>
-                  <input type="text" id="ownerName" placeholder="Owner Name">
-                </div>
-                <div>
-                  <label>WhatsApp Number</label>
-                  <input type="number" id="ownerWA" placeholder="WhatsApp Number">
-                </div>
-                <div>
-                  <label>Email 1 (Primary)</label>
-                  <input type="email" id="email1" placeholder="Email 1">
-                </div>
-                <div>
-                  <label>Email 2 (Optional)</label>
-                  <input type="email" id="email2" placeholder="Email 2">
-                </div>
-                <button class="btn" id="updateBtn">UPDATE INFO</button>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -154,7 +130,7 @@
     <script>
       // --- CONFIG ---
       // Replace with your actual deployed Google Apps Script URL
-      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzD-m74ZjmHR58jClHvmb-x3g2gulF_efPQ8rB4RWCh5m9jYDOsQvuv5vvJ72WwcOAwlw/exec";
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLvjYqwhzeWWzhID_f7q-0sKHmZnYPeXY5C7_Pp0e5Zpjr1mQDjVxkgTaj0FRh5lbYAg/exec";
 
       const params = new URLSearchParams(window.location.search);
       const qV = params.get("v") || "";
